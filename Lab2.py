@@ -50,10 +50,14 @@ print(df2.iloc[[0, 5, 6, 7], [1, 2]]) # wiersze o indeksach 0, 5, 6, 7 oraz kolu
 # Zadanie nr 5
 
 print("Zadanie nr 5")
-print(df2.describe())
-print(df2[df2>0])
-df2[df2>0][df2]
-print(df2[df2['A']>0]['A'])
+print(df2.describe()) # statystyki opisowe
+print(df2>0) # sprawdzenie, które wartości są większe od 0
+df2_new=pd.concat([df2[df2>0]['A'], df2[df2>0]['B']]) # połączenie wartości większych od 0 kolumn A i B (typ Series)
+df2_new=pd.concat([df2_new, df2[df2>0]['C']]) # dodanie wartości większych od 0 kolumny C (typ Series)
+df2_new.dropna(inplace=True) # odrzucenie wartości NaN
+df2_new = pd.DataFrame({
+    'A': df2_new.to_numpy() # stworzenie DataFrame z typu Series przekonwertowanego na ndarray
+})
 
 # Zadanie nr 6
 
@@ -105,3 +109,73 @@ df7.iloc[1, 2] = 10 # Pole o indeksie [1, 2] w tabeli przyjmuje wartość 10
 print(df7)
 df7[df7<0] = -df7 # Każda wartość mniejsza od 0 zostaje zamieniona na liczbę przeciwną
 print(df7)
+
+# Zadania podsumowujące
+# Zadanie nr 11
+
+print("Zadanie nr 11")
+df11 = pd.DataFrame({
+    'A': np.random.randn(100),
+    'B': np.random.randn(100),
+    'C': np.random.randn(100),
+    'D': np.random.randn(100)
+})
+df11_warunek = df11[(df11['A']>0) & (df11['B']<0)] # tylko wiersze gdzie kolumna A>0 oraz B<0
+print(df11_warunek)
+df11_warunek_mean = df11_warunek.mean(axis=0)
+print(df11_warunek_mean) # średnia dla każdej kolumny
+
+# Zadanie nr 12
+
+print("Zadanie nr 12")
+products = pd.DataFrame({
+    "ProductID": [0, 1, 2, 3, 4, 5],
+    "Name": ["Tomato", "Rice", "Bread", "Onion", "Cucumber", "Carrot"]
+})
+sales = pd.DataFrame({
+    "ProductID": [0, 1, 2, 3, 6, 7],
+    "Sales": np.random.randint(10, 101, 6)
+})
+
+merged = pd.merge(products, sales, how = "left") # pobiera wspólny klucz z lewej tablicy, zasada działania jak LEFT JOIN w SQLu
+print(merged)
+merged = pd.merge(products, sales, how = "inner") # pobiera wspólny klucz z obu tablic, zasada działania jak INNER JOIN w SQLu
+print(merged)
+merged = pd.merge(products, sales, how = "right") # pobiera wspólny klucz z prawej tablicy, zasada działania jak RIGHT JOIN w SQLu
+print(merged)
+
+# Zadanie nr 13
+
+print("Zadanie nr 13")
+df13 = pd.DataFrame({
+    "Day": ["1-03-2026", "2-03-2026", "3-03-2026", "1-03-2026", "2-03-2026", "3-03-2026", "1-03-2026", "2-03-2026", "3-03-2026"],
+    "Product": ["Tomato", "Tomato", "Tomato", "Yoghurt", "Yoghurt", "Yoghurt", "Rice", "Rice", "Rice"],
+    "Sales": np.random.randint(10, 101, 9)
+})
+print(df13)
+pivot13 = pd.pivot_table(df13, values="Sales", index=["Day"], aggfunc="sum") # suma sprzedaży dla każdego produktu w poszczególnych dniach
+pivot13 = pd.pivot_table(df13, values="Sales", index=["Day"], aggfunc="mean") # średnia sprzedaży jednego produktu w poszczególnych dniach
+
+# Zadanie nr 14
+
+print("Zadanie nr 14")
+df14 = pd.DataFrame({
+    'A': np.random.randint(10, 101, 10),
+    'B': np.random.randint(10, 101, 10),
+    'C': np.random.randint(10, 101, 10),
+    'D': np.random.randint(10, 101, 10)
+    }, index = pd.Index(range(0, 10, 1), name="id"))
+
+df14.index.name = "idx" # zmiany nazwy indeksu
+df14.set_index('A', inplace=True) # ustawienie kolumny A jako indeks
+df14.reset_index(inplace=True) # zresetowanie indeksu
+
+# Zadanie nr 15
+
+print("Zadanie nr 15")
+df14["A+B"] = df14['A']+df14['B'] # suma kolumn A i B
+df14["Średnia(A,B,C)"] = df14[['A','B','C']].mean(axis=1) # średnia kolumn A, B i C
+
+df14["Norm A"] = (df14["A"] - df14["A"].mean()) / df14["A"].std(ddof=0) # wartości znormalizowane dla kolumny A
+df14["Norm B"] = (df14["B"] - df14["B"].mean()) / df14["B"].std(ddof=0) # wartości znormalizowane dla kolumny B
+df14["Norm C"] = (df14["C"] - df14["C"].mean()) / df14["C"].std(ddof=0) # wartości znormalizowane dla kolumny C
